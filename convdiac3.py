@@ -3,9 +3,24 @@ import sys
 import chardet
 import shutil
 import json
-from time import sleep
+import datetime
 
-# exePath=os.getcwd()
+
+appdata_dir = os.getenv('APPDATA') 
+log_dir = os.path.join(appdata_dir, 'Conversie Diacritice')
+log_path = os.path.join(log_dir, 'log.txt') # AppData\Roaming\Conversie Diacritice\log.txt
+os.makedirs(log_dir, exist_ok=True)
+
+def get_json_data():
+    # Get the folder where the .exe is located 
+    exe_dir = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else __file__)
+    json_path = os.path.join(exe_dir, "map.json")
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            return json.load(f) 
+    except (FileNotFoundError, json.JSONDecodeError):
+        raise("Error: missing map.json file")
+        
 
 def get_encoding(filePath):
     with open(filePath, 'rb') as file:
@@ -33,22 +48,19 @@ def convert_to_utf8(file_path):
 def main():
     if len(sys.argv)>1:
         file=sys.argv[1]
-        print(file)
+        # print(file)
     else:
-        print("No file provided!")
-        sleep(10)
-        return
+        raise("No file provided!")
     
     # loading replacement chars
-    # with open("map.json") as config:
-    #    charMap=json.load(config)
+    charMap=get_json_data()
     # print(charMap)
-    charMap={
-        "\u00ba": "s",
-        "\u00fe": "t",
-        "\u00aa": "S",
-        "\u00de": "T" 
-    }
+    # charMap={
+    #     "\u00ba": "s",
+    #     "\u00fe": "t",
+    #     "\u00aa": "S",
+    #     "\u00de": "T" 
+    # }
 
     # making file backup
     bakfile=file+".bak"
@@ -82,10 +94,12 @@ def main():
             _.write(str)
 
 if __name__=="__main__":
-    with open('C:/Work/Proiecte_serioase/ConversieDiacritice3/log.txt', 'w') as f:
+    with open(log_path, 'w') as f:
         sys.stdout = f
         try:
             main()
+            now=datetime.datetime.now()
+            print(f"succes ---- {now}")
         except Exception as e:
             print(e)
             sys.stdout=sys.__stdout__ 

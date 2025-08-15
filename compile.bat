@@ -1,3 +1,3 @@
 @echo off
 
-python convdiac3.py --onfile --console convdiac3.py
+pyinstaller --onefile --console convdiac3.py
